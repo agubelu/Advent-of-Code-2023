@@ -14,7 +14,7 @@ impl<T: PrimInt> Coords2D<T> {
         Self { x, y }
     }
 
-    pub fn zero() -> Self {
+    pub fn origin() -> Self {
         (T::zero(), T::zero()).into()
     }
 }

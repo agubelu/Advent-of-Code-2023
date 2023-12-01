@@ -20,6 +20,7 @@ impl<T: Copy> VecMat<T> {
     }
 
     pub fn from_data(width: usize, height: usize, data: Vec<T>) -> Self {
+        assert_eq!(data.len(), width * height);
         Self { width, height, data }
     }
 
@@ -34,13 +35,16 @@ impl<T: Copy> VecMat<T> {
     ////////////////////////////////////////////////////////////////////////////
 
     fn index(&self, x: usize, y: usize) -> usize {
-        assert!(x < self.width(), "x index out of bounds: {} but width is {}", x, self.width());
-        assert!(y < self.height(), "y index out of bounds: {} but height is {}", y, self.height());
+        assert!(x < self.width(), "x index out of bounds: {x} but width is {}", self.width());
+        assert!(y < self.height(), "y index out of bounds: {y} but height is {}", self.height());
         y * self.width + x
     }
 }
 
-impl<T: Copy, I: PrimInt + Display> Index<(I, I)> for VecMat<T> {
+impl<T, I> Index<(I, I)> for VecMat<T> 
+where T: Copy, 
+      I: PrimInt + Display
+{
     type Output = T;
     
     fn index(&self, (x, y): (I, I)) -> &Self::Output {
@@ -52,7 +56,10 @@ impl<T: Copy, I: PrimInt + Display> Index<(I, I)> for VecMat<T> {
     }
 }
 
-impl<T: Copy, I: PrimInt + Display> IndexMut<(I, I)> for VecMat<T> {
+impl<T, I> IndexMut<(I, I)> for VecMat<T>
+where T: Copy, 
+      I: PrimInt + Display
+{
     fn index_mut(&mut self, (x, y): (I, I)) -> &mut Self::Output {
         let i = self.index(
             x.to_usize().unwrap_or_else(|| panic!("X index not valid: {x}")), 
