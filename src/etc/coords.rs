@@ -36,6 +36,16 @@ impl<T: PrimInt + Signed> Coords2D<T> {
         (T::one(), T::zero()).into()
     }
 
+    pub fn neighbors(&self) -> [Self; 4] {
+        [self + Self::up(), self + Self::down(), self + Self::left(), self + Self::right()]
+    }
+
+    pub fn neighbors_diag(&self) -> [Self; 8] {
+        [self + Self::up(), self + Self::down(), self + Self::left(), self + Self::right(),
+         self + Self::up() + Self::left(), self + Self::up() + Self::right(),
+         self + Self::down() + Self::left(), self + Self::down() + Self::right(),]
+    }
+
     pub fn manhattan_dist(&self, other: &Self) -> T {
         (self.x - other.x).abs() + (self.y - other.y).abs()
     }
@@ -58,6 +68,14 @@ impl <T: PrimInt> Add<Coords2D<T>> for Coords2D<T> {
 
     fn add(self, rhs: Self) -> Self::Output {
         Self::new(self.x + rhs.x, self.y + rhs.y)
+    }
+}
+
+impl <T: PrimInt> Add<Coords2D<T>> for &Coords2D<T> {
+    type Output = Coords2D<T>;
+
+    fn add(self, rhs: Coords2D<T>) -> Self::Output {
+        Coords2D::new(self.x + rhs.x, self.y + rhs.y)
     }
 }
 

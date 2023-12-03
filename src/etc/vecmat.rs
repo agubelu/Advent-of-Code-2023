@@ -1,6 +1,10 @@
 #![allow(dead_code)]
+
+use std::marker::PhantomData;
 use std::ops::{Index, IndexMut};
 use std::fmt::Display;
+use std::iter::Enumerate;
+use std::slice::Iter;
 
 use num_traits::int::PrimInt;
 
@@ -12,6 +16,12 @@ pub struct VecMat<T: Copy> {
     width: usize,
     height: usize,
     data: Vec<T>,
+}
+
+pub struct VecMaxIndexedIter<'a, T: Copy, I: PrimInt> {
+    _typ: PhantomData<I>,
+    iter: Enumerate<Iter<'a, T>>,
+    mat: &'a VecMat<T>
 }
 
 impl<T: Copy> VecMat<T> {
@@ -33,12 +43,20 @@ impl<T: Copy> VecMat<T> {
         self.height
     }
 
+    pub fn indexed_iter<I: PrimInt>(&self) -> VecMaxIndexedIter<T, I> {
+        VecMaxIndexedIter::new(self)
+    }
+
     ////////////////////////////////////////////////////////////////////////////
 
     fn index(&self, x: usize, y: usize) -> usize {
         assert!(x < self.width(), "x index out of bounds: {x} but width is {}", self.width());
         assert!(y < self.height(), "y index out of bounds: {y} but height is {}", self.height());
         y * self.width + x
+    }
+
+    fn coords<I: PrimInt>(&self, index: usize) -> Coords2D<I> {
+        (I::from(index % self.width).unwrap(), I::from(index / self.width).unwrap()).into()
     }
 }
 
@@ -88,5 +106,20 @@ where T: Copy,
 
     fn index_mut(&mut self, Coords2D { x, y }: Coords2D<I>) -> &mut Self::Output {
         &mut self[(x, y)]
+    }
+}
+
+impl <'a, T: Copy, I: PrimInt> VecMaxIndexedIter<'a, T, I> {
+    pub fn new(mat: &'a VecMat<T>) -> Self {
+        let iter = mat.data.iter().enumerate();
+        Self { mat, iter, _typ: PhantomData }
+    }
+}
+
+impl<'a, T: Copy, I: PrimInt> Iterator for VecMaxIndexedIter<'a, T, I> {
+    type Item = (Coords2D<I>, T);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next().map(|(i, x)| (self.mat.coords(i), *x))
     }
 }
