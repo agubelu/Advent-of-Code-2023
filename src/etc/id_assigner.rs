@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use rustc_hash::FxHashMap;
 use num_traits::int::PrimInt;
 use std::hash::Hash;
