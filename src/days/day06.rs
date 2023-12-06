@@ -9,10 +9,8 @@ pub fn solve() -> SolutionPair {
     let races = parse(&input);
     let big_race = parse(&input.replace(' ', ""))[0];
 
-    let sol1: u64 = races.iter()
-        .map(|&r| find_race_solutions(r))
-        .product();
-    let sol2 = find_race_solutions(big_race);
+    let sol1: u64 = races.iter().map(find_race_solutions).product();
+    let sol2 = find_race_solutions(&big_race);
 
     (Solution::from(sol1), Solution::from(sol2))
 }
@@ -31,9 +29,9 @@ pub fn solve() -> SolutionPair {
     holds are those between the two previous solutions.
 */
 
-fn find_race_solutions((max_time, record): (u64, u64)) -> u64 {
-    let t = max_time as f64;
-    let r = record as f64;
+fn find_race_solutions((max_time, record): &(u64, u64)) -> u64 {
+    let t = *max_time as f64;
+    let r = *record as f64;
     let sqrt = (t*t - 4.0*r).sqrt();
 
     let p1 = ((t + sqrt) / 2.0).ceil();
