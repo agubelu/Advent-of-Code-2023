@@ -68,12 +68,11 @@ fn find_loop(grid: &VecMat<char>, start: Pos) -> FxHashSet<Pos> {
 
     let mut current = start;
     let mut the_loop = FxHashSet::default();
-    the_loop.insert(current);
 
-    while current + dir != start {
+    while !the_loop.contains(&current) {
+        the_loop.insert(current);
         current += dir;
         dir = next_direction(dir, grid[current]);
-        the_loop.insert(current);
     }
 
     the_loop
