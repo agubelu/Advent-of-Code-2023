@@ -39,12 +39,8 @@ fn calculate_area(grid: &VecMat<char>, the_loop: &FxHashSet<Pos>) -> u32 {
                     inside = !inside;
                 }
 
-                if matches!(tile, 'F' | 'L') {
+                if matches!(tile, 'F' | 'L' | '7' | 'J') {
                     prev_turn = tile;
-                }
-
-                if matches!(tile, '7' | 'J') {
-                    prev_turn = ' ';
                 }
             } else if inside {
                 area += 1;
