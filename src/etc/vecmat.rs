@@ -47,15 +47,23 @@ impl<T: Copy> VecMat<T> {
         VecMaxIndexedIter::new(self)
     }
 
-    ////////////////////////////////////////////////////////////////////////////
+    pub fn is_in_bounds<I: PrimInt>(&self, pos: Coords2D<I>) -> bool {
+        let x = pos.x.to_i64().unwrap();
+        let y = pos.y.to_i64().unwrap();
 
-    fn index(&self, x: usize, y: usize) -> usize {
+        let bound_x = self.width() as i64;
+        let bound_y = self.height() as i64;
+
+        x >= 0 && y >= 0 && x < bound_x && y < bound_y
+    }
+
+    pub fn index(&self, x: usize, y: usize) -> usize {
         assert!(x < self.width(), "x index out of bounds: {x} but width is {}", self.width());
         assert!(y < self.height(), "y index out of bounds: {y} but height is {}", self.height());
         y * self.width + x
     }
 
-    fn coords<I: PrimInt>(&self, index: usize) -> Coords2D<I> {
+    pub fn coords<I: PrimInt>(&self, index: usize) -> Coords2D<I> {
         (I::from(index % self.width).unwrap(), I::from(index / self.width).unwrap()).into()
     }
 }
