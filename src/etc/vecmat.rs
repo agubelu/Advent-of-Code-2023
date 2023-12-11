@@ -57,6 +57,14 @@ impl<T: Copy> VecMat<T> {
         x >= 0 && y >= 0 && x < bound_x && y < bound_y
     }
 
+    pub fn get_or<I: PrimInt + Display>(&self, pos: Coords2D<I>, default: T) -> T {
+        if self.is_in_bounds(pos) {
+            self[pos]
+        } else {
+            default
+        }
+    }
+
     pub fn index(&self, x: usize, y: usize) -> usize {
         assert!(x < self.width(), "x index out of bounds: {x} but width is {}", self.width());
         assert!(y < self.height(), "y index out of bounds: {y} but height is {}", self.height());

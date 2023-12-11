@@ -36,6 +36,22 @@ impl<T: PrimInt + Signed> Coords2D<T> {
         (T::one(), T::zero()).into()
     }
 
+    pub fn go_up(&self) -> Self {
+        self + Self::up()
+    }
+
+    pub fn go_down(&self) -> Self {
+        self + Self::down()
+    }
+
+    pub fn go_left(&self) -> Self {
+        self + Self::left()
+    }
+
+    pub fn go_right(&self) -> Self {
+        self + Self::right()
+    }
+
     pub fn neighbors(&self) -> [Self; 4] {
         [self + Self::up(), self + Self::down(), self + Self::left(), self + Self::right()]
     }
