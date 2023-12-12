@@ -54,11 +54,8 @@ fn calculate_area(grid: &VecMat<char>, the_loop: &FxHashSet<Pos>) -> u32 {
 fn find_loop(grid: &VecMat<char>, start: Pos) -> FxHashSet<Pos> {
     let mut dir = match grid[start] {
         '-' => Pos::right(),
-        '|' => Pos::down(),
-        'J' => Pos::up(),
-        'L' => Pos::up(),
-        '7' => Pos::down(),
-        'F' => Pos::down(),
+        '|' | '7' | 'F' => Pos::down(),
+        'J' | 'L' => Pos::up(),
         _ => unreachable!()
     };
 
