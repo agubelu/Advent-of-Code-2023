@@ -26,7 +26,7 @@ pub fn solve() -> SolutionPair {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-fn arrangements<'b, 'a: 'b>(data: &'a [char], groups: &'a [usize], cache: &mut Cache<'b>) -> u64 {
+fn arrangements<'a>(data: &'a [char], groups: &'a [usize], cache: &mut Cache<'a>) -> u64 {
     if groups.is_empty() {
         return data.iter().all(|c| *c != '#') as u64;
     }
@@ -49,7 +49,7 @@ fn arrangements<'b, 'a: 'b>(data: &'a [char], groups: &'a [usize], cache: &mut C
     res
 }
 
-fn try_skip<'b, 'a: 'b>(data: &'a [char], groups: &'a [usize], cache: &mut Cache<'b>) -> u64 {
+fn try_skip<'a>(data: &'a [char], groups: &'a [usize], cache: &mut Cache<'a>) -> u64 {
     let can_skip = groups.is_empty() || data.len() > groups.iter().sum::<usize>() + (groups.len() - 1);
 
     if can_skip {
@@ -57,7 +57,7 @@ fn try_skip<'b, 'a: 'b>(data: &'a [char], groups: &'a [usize], cache: &mut Cache
     } else { 0 }
 }
 
-fn try_match<'b, 'a: 'b>(data: &'a [char], groups: &'a [usize], cache: &mut Cache<'b>) -> u64 {
+fn try_match<'a>(data: &'a [char], groups: &'a [usize], cache: &mut Cache<'a>) -> u64 {
     let group_len = groups[0];
     let can_start_match = match data.len().cmp(&group_len) {
         Less => false,
