@@ -3,6 +3,7 @@ use std::fs::read_to_string;
 use std::iter::repeat;
 
 use itertools::Itertools;
+use rayon::prelude::*;
 use rustc_hash::FxHashMap;
 
 use crate::{Solution, SolutionPair};
@@ -17,8 +18,8 @@ pub fn solve() -> SolutionPair {
     let data1 = input.lines().map(|line| parse_line(line, 1)).collect_vec();
     let data2 = input.lines().map(|line| parse_line(line, 5)).collect_vec();
     
-    let sol1: u64 = data1.iter().map(|(d, g)| arrangements(d, g, &mut Cache::default())).sum();
-    let sol2: u64 = data2.iter().map(|(d, g)| arrangements(d, g, &mut Cache::default())).sum();
+    let sol1: u64 = data1.par_iter().map(|(d, g)| arrangements(d, g, &mut Cache::default())).sum();
+    let sol2: u64 = data2.par_iter().map(|(d, g)| arrangements(d, g, &mut Cache::default())).sum();
 
     (Solution::from(sol1), Solution::from(sol2))
 }
