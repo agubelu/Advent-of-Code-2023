@@ -43,6 +43,16 @@ impl<T: Copy> VecMat<T> {
         self.height
     }
 
+    pub fn get_row(&self, row: usize) -> Vec<T>  {
+        assert!(row < self.height());
+        self.data[self.width() * row .. self.width() * (row + 1)].to_vec()
+    }
+
+    pub fn get_col(&self, col: usize) -> Vec<T> {
+        assert!(col < self.width());
+        (0..self.height()).map(|i| self.data[i * self.width() + col]).collect()
+    }
+
     pub fn indexed_iter<I: PrimInt>(&self) -> VecMaxIndexedIter<T, I> {
         VecMaxIndexedIter::new(self)
     }
@@ -73,6 +83,14 @@ impl<T: Copy> VecMat<T> {
 
     pub fn coords<I: PrimInt>(&self, index: usize) -> Coords2D<I> {
         (I::from(index % self.width).unwrap(), I::from(index / self.width).unwrap()).into()
+    }
+}
+
+impl VecMat<char> {
+    pub fn from_str(string: &str) -> Self {
+        let width = string.lines().next().unwrap().len();
+        let data: Vec<char> = string.chars().filter(|ch| !ch.is_whitespace()).collect();
+        Self{ width, height: data.len() / width, data }
     }
 }
 
