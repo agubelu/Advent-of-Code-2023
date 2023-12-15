@@ -11,7 +11,7 @@ use num_traits::int::PrimInt;
 use super::coords::Coords2D;
 
 /** A 2D-like structure backed by a Vec */
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq)]
 pub struct VecMat<T: Copy> {
     width: usize,
     height: usize,
@@ -155,5 +155,18 @@ impl<'a, T: Copy, I: PrimInt> Iterator for VecMaxIndexedIter<'a, T, I> {
 
     fn next(&mut self) -> Option<Self::Item> {
         self.iter.next().map(|(i, x)| (self.mat.coords(i), *x))
+    }
+}
+
+impl<T: Copy + Display> Display for VecMat<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for y in 0..self.height() {
+            for x in 0..self.width() {
+                write!(f, "{}", self[(x, y)])?;
+            }
+            writeln!(f)?;
+        }
+
+        Ok(())
     }
 }
