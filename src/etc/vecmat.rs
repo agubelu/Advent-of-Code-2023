@@ -85,7 +85,7 @@ impl<T: Copy> VecMat<T> {
         let mut data = vec![];
 
         for x in 0..self.width() {
-            data.extend(self.get_col(x));
+            data.extend(self.get_col(x).into_iter().rev());
         }
 
         *self = Self { data, width: self.height(), height: self.width() };

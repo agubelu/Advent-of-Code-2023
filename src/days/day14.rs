@@ -45,40 +45,16 @@ fn find_repetition(grid: &mut Grid) -> (u64, u64) {
 }
 
 fn cycle(grid: &mut Grid) {
-    slide_up(grid);
-    slide_left(grid);
-    slide_down(grid);
-    slide_right(grid);
+    for _ in 0..4 {
+        slide_up(grid);
+        grid.rotate_right();
+    }
 }
 
 fn slide_up(grid: &mut Grid) {
     for y in 0..grid.height() as i32 {
         for x in 0..grid.width() as i32 {
             slide_rock(grid, (x, y).into(), Pos::up());
-        }
-    }
-}
-
-fn slide_down(grid: &mut Grid) {
-    for y in (0..grid.height() as i32).rev() {
-        for x in 0..grid.width() as i32 {
-            slide_rock(grid, (x, y).into(), Pos::down());
-        }
-    }
-}
-
-fn slide_left(grid: &mut Grid) {
-    for x in 0..grid.width() as i32 {
-        for y in 0..grid.height() as i32 {
-            slide_rock(grid, (x, y).into(), Pos::left());
-        }
-    }
-}
-
-fn slide_right(grid: &mut Grid) {
-    for x in (0..grid.width() as i32).rev() {
-        for y in 0..grid.height() as i32 {
-            slide_rock(grid, (x, y).into(), Pos::right());
         }
     }
 }
