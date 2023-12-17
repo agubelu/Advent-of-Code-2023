@@ -35,6 +35,12 @@ impl<T: Copy> VecMat<T> {
         Self { width, height, data }
     }
 
+    pub fn map_from_str(string: &str, mapper: fn(char) -> T) -> Self {
+        let width = string.lines().next().unwrap().len();
+        let data: Vec<_> = string.chars().filter(|ch| !ch.is_whitespace()).map(mapper).collect();
+        Self{ width, height: data.len() / width, data }
+    }
+
     pub fn width(&self) -> usize {
         self.width
     }
@@ -73,6 +79,26 @@ impl<T: Copy> VecMat<T> {
         } else {
             default
         }
+    }
+
+    pub fn rotate_right(&mut self) {
+        let mut data = vec![];
+
+        for x in 0..self.width() {
+            data.extend(self.get_col(x));
+        }
+
+        *self = Self { data, width: self.height(), height: self.width() };
+    }
+
+    pub fn rotate_left(&mut self) {
+        let mut data = vec![];
+
+        for x in (0..self.width()).rev() {
+            data.extend(self.get_col(x));
+        }
+
+        *self = Self { data, width: self.height(), height: self.width() };
     }
 
     pub fn index(&self, x: usize, y: usize) -> usize {
