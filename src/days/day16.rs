@@ -53,7 +53,7 @@ fn project_ray(grid: &VecMat<char>, start_pos: Pos, start_dir: Pos) -> usize {
             visited.insert((pos, dir));
             // Find the continuation(s) for this ray that remain in-bounds
             // and haven't been visited before
-            let conts = next_directions(grid, (pos, dir)).into_iter()
+            let conts = next_directions(grid[pos], dir).into_iter()
                 .map(|new_dir| (pos + new_dir, new_dir))
                 .filter(|&(new_pos, new_dir)| grid.is_in_bounds(new_pos) && !visited.contains(&(new_pos, new_dir)));
             new_heads.extend(conts);
@@ -66,15 +66,13 @@ fn project_ray(grid: &VecMat<char>, start_pos: Pos, start_dir: Pos) -> usize {
     visited.into_iter().map(|(pos, _)| pos).unique().count()
 }
 
-fn next_directions(grid: &VecMat<char>, (current, prev_dir): (Pos, Pos)) -> Vec<Pos> {
-    let [up, down, left, right] = Pos::origin().neighbors();
-
-    match (grid[current], prev_dir) {
+fn next_directions(current: char, prev_dir: Pos) -> Vec<Pos> {
+    match (current, prev_dir) {
         ('.', d) => vec![d],
         ('|', d) if d.x == 0 => vec![d],
-        ('|', _) => vec![up, down],
+        ('|', _) => vec![Pos::up(), Pos::down()],
         ('-', d) if d.y == 0 => vec![d],
-        ('-', _) => vec![left, right],
+        ('-', _) => vec![Pos::left(), Pos::right()],
         ('/', Pos{x: 0, y}) => vec![(-y, 0).into()],
         ('/', Pos{x, ..}) => vec![(0, -x).into()],
         ('\\', Pos{x: 0, y}) => vec![(y, 0).into()],
