@@ -1,4 +1,4 @@
-use std::ops::{Add, Sub, AddAssign, SubAssign, Mul};
+use std::ops::{Add, Sub, AddAssign, SubAssign, Mul, Neg};
 use num_traits::int::PrimInt;
 use num_traits::sign::Signed;
 
@@ -136,5 +136,13 @@ impl <T: PrimInt> Mul<T> for Coords2D<T> {
 
     fn mul(self, rhs: T) -> Self::Output {
         Self::new(self.x * rhs, self.y * rhs)
+    }
+}
+
+impl <T: PrimInt + Neg<Output = T>> Neg for Coords2D<T> {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        Self::new(-self.x, -self.y)
     }
 }
