@@ -1,74 +1,66 @@
 use std::fs::read_to_string;
 use itertools::Itertools;
-use rustc_hash::FxHashSet;
 use crate::{Solution, SolutionPair};
 use crate::etc::{Coords2D, VecMat};
 
 ///////////////////////////////////////////////////////////////////////////////
 
-type Pos = Coords2D<i32>;
+type Pos = Coords2D<i64>;
 
 pub fn solve() -> SolutionPair {
     let input = read_to_string("input/day10.txt").unwrap();
-    let mut grid = parse(&input);
+    let mut grid = VecMat::from_str(&input);
 
     let start_pos = replace_start(&mut grid);
-    let the_loop = find_loop(&grid, start_pos);
+    let vertices = find_loop_vertices(&grid, start_pos);
 
-    let sol1 = the_loop.len() / 2;
-    let sol2 = calculate_area(&grid, &the_loop);
+    let outside = outside_points(&vertices);
+    let sol1 = outside / 2;
+    let sol2 = inside_points(&vertices, outside);
 
     (Solution::from(sol1), Solution::from(sol2))
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-fn calculate_area(grid: &VecMat<char>, the_loop: &FxHashSet<Pos>) -> u32 {
-    let mut area = 0;
-
-    for y in 0..grid.height() {
-        let mut inside = false;
-        let mut prev_turn = ' ';
-
-        for x in 0..grid.width() {
-            let pos = (x as i32, y as i32).into();
-            let tile = grid[pos];
-
-            if the_loop.contains(&pos) {
-                if matches!((tile, prev_turn), ('|', _) | ('7', 'L') | ('J', 'F')) {
-                    inside = !inside;
-                }
-
-                if matches!(tile, 'F' | 'L' | '7' | 'J') {
-                    prev_turn = tile;
-                }
-            } else if inside {
-                area += 1;
-            }
-        }
-    }
-
-    area
+// https://en.wikipedia.org/wiki/Shoelace_formula
+fn total_area(vertices: &[Pos]) -> i64 {
+    vertices.iter().tuple_windows()
+        .map(|(a, b)| a.x * b.y - a.y * b.x)
+        .sum::<i64>().abs() / 2
 }
 
-fn find_loop(grid: &VecMat<char>, start: Pos) -> FxHashSet<Pos> {
+pub fn outside_points(vertices: &[Pos]) -> i64 {
+    vertices.iter().tuple_windows().map(|(a, b)| a.manhattan_dist(b)).sum()
+}
+
+// https://en.m.wikipedia.org/wiki/Pick's_theorem
+pub fn inside_points(vertices: &[Pos], outside: i64) -> i64 {
+    let area = total_area(vertices);
+    area - (outside / 2) + 1
+}
+
+fn find_loop_vertices(grid: &VecMat<char>, start: Pos) -> Vec<Pos> {
     let mut dir = match grid[start] {
-        '-' => Pos::right(),
         '|' | '7' | 'F' => Pos::down(),
         'J' | 'L' => Pos::up(),
-        _ => unreachable!()
+        _ => Pos::right(),
     };
 
     let mut current = start;
-    let mut the_loop = FxHashSet::default();
+    let mut vertices = vec![];
 
-    while !the_loop.contains(&current) {
-        the_loop.insert(current);
+    loop {
+        if !matches!(grid[current], '-' | '|') {
+            vertices.push(current);
+        }
         current += dir;
         dir = next_direction(dir, grid[current]);
+        if current == start { break }
     }
 
-    the_loop
+    vertices.push(vertices[0]);
+    vertices
 }
 
 fn next_direction(prev_direction: Pos, tile: char) -> Pos {
@@ -109,10 +101,4 @@ fn replace_start(grid: &mut VecMat<char>) -> Pos {
 
     grid[start_pos] = new_tile;
     start_pos
-}
-
-fn parse(input: &str) -> VecMat<char> {
-    let width = input.lines().next().unwrap().len();
-    let data = input.chars().filter(|ch| !ch.is_whitespace()).collect_vec();
-    VecMat::from_data(width, data.len() / width, data)
 }
