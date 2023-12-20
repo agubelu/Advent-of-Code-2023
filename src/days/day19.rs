@@ -1,20 +1,16 @@
 use std::fs::read_to_string;
 use std::cmp::{min, max};
 use itertools::Itertools;
-use lazy_static::lazy_static;
-use regex::Regex;
 use rustc_hash::FxHashMap;
+use sscanf::sscanf;
 use crate::etc::DOUBLE_NEWLINE;
 use crate::{Solution, SolutionPair};
 
 ///////////////////////////////////////////////////////////////////////////////
 
-lazy_static! {
-    static ref RE_RULE: Regex = Regex::new(r"(\w*)(?:([<>])(\d+):(.*))?").unwrap();
-}
-
 type WorkflowMap<'a> = FxHashMap<&'a str, Vec<Rule<'a>>>;
 type Bounds = [(i64, i64); 4];
+
 struct Piece {x: i64, m: i64, a: i64, s: i64}
 
 enum Condition {
@@ -143,19 +139,13 @@ fn parse_workflow(line: &str) -> (&str, Vec<Rule>) {
 }
 
 fn parse_rule(text: &str) -> Rule {
-    let m = RE_RULE.captures(text).unwrap();
-
-    if m.get(2).is_none() {
-        let target = m.get(1).unwrap().as_str();
-        Rule { target, cond: Condition::Always }
+    if !text.contains(':') {
+        Rule { target: text, cond: Condition::Always }
     } else {
-        let prop = m.get(1).unwrap().as_str().chars().next().unwrap();
-        let op = m.get(2).unwrap().as_str();
-        let val = m.get(3).unwrap().as_str().parse().unwrap();
-        let target = m.get(4).unwrap().as_str();
+        let (prop, op, val, target) = sscanf!(text, "{char}{char}{i64}:{str}").unwrap();
 
         let cond = match op {
-            ">" => Condition::Greater(val, prop),
+            '>' => Condition::Greater(val, prop),
              _  => Condition::Less(val, prop)
         };
         Rule { target, cond }
@@ -163,8 +153,6 @@ fn parse_rule(text: &str) -> Rule {
 }
 
 fn parse_piece(line: &str) -> Piece {
-    let clean = &line[1..line.len() - 1]; // Remove wrapping { }
-    let (x, m, a, s) = clean.split(',').map(|x| x.split('=').nth(1).unwrap().parse().unwrap())
-        .collect_tuple().unwrap();
+    let (x, m, a, s) = sscanf!(line, "{{x={i64},m={i64},a={i64},s={i64}}}").unwrap();
     Piece { x, m, a, s }
 }
