@@ -49,7 +49,7 @@ fn find_vertices(instrs: &[Instr]) -> Vec<Pos> {
     res
 }
 
-fn true_instruction<'a>(instr: &'a Instr<'a>) -> Instr<'a> {
+fn true_instruction<'a>(instr: &Instr<'a>) -> Instr<'a> {
     let number = i64::from_str_radix(&instr.2[..5], 16).unwrap();
     let dir = match &instr.2[5..] {
         "0" => 'R',
