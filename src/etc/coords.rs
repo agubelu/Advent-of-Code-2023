@@ -1,15 +1,14 @@
 use std::ops::{Add, Sub, AddAssign, SubAssign, Mul, Neg};
-use num_traits::int::PrimInt;
-use num_traits::sign::Signed;
+use num_traits::{Float, Num, PrimInt, Signed};
 
-/** A pair of integers representing 2D coordinates. */
+/** A pair of numbers representing 2D coordinates. */
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Coords2D<T: PrimInt> {
+pub struct Coords2D<T: Num> {
     pub x: T,
     pub y: T,
 }
 
-impl<T: PrimInt> Coords2D<T> {
+impl<T: Num> Coords2D<T> {
     pub const fn new(x: T, y: T) -> Self {
         Self { x, y }
     }
@@ -19,7 +18,7 @@ impl<T: PrimInt> Coords2D<T> {
     }
 }
 
-impl<T: PrimInt + Signed> Coords2D<T> {
+impl<T: Num + Signed + Copy> Coords2D<T> {
     pub fn up() -> Self {
         (T::zero(), -T::one()).into()
     }
@@ -61,25 +60,34 @@ impl<T: PrimInt + Signed> Coords2D<T> {
          self + Self::up() + Self::left(), self + Self::up() + Self::right(),
          self + Self::down() + Self::left(), self + Self::down() + Self::right(),]
     }
+}
 
+impl<T: PrimInt + Signed> Coords2D<T> {
     pub fn manhattan_dist(&self, other: &Self) -> T {
         (self.x - other.x).abs() + (self.y - other.y).abs()
     }
 }
 
-impl<T: PrimInt> From<(T, T)> for Coords2D<T> {
+impl<T: Float + Signed> Coords2D<T> {
+    pub fn euclidean_dist(&self, other: &Self) -> T {
+        let sqs = (self.x - other.x).powi(2) + (self.y - other.y).powi(2);
+        sqs.sqrt()
+    }
+}
+
+impl<T: Num> From<(T, T)> for Coords2D<T> {
     fn from((x, y): (T, T)) -> Self {
         Self::new(x, y)
     }
 }
 
-impl<T: PrimInt> From<Coords2D<T>> for (T, T) {
+impl<T: Num> From<Coords2D<T>> for (T, T) {
     fn from(c: Coords2D<T>) -> (T, T) {
         (c.x, c.y)
     }
 }
 
-impl <T: PrimInt> Add<Coords2D<T>> for Coords2D<T> {
+impl <T: Num> Add<Coords2D<T>> for Coords2D<T> {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
@@ -87,7 +95,7 @@ impl <T: PrimInt> Add<Coords2D<T>> for Coords2D<T> {
     }
 }
 
-impl <T: PrimInt> Add<Coords2D<T>> for &Coords2D<T> {
+impl <T: Num + Copy> Add<Coords2D<T>> for &Coords2D<T> {
     type Output = Coords2D<T>;
 
     fn add(self, rhs: Coords2D<T>) -> Self::Output {
@@ -95,13 +103,13 @@ impl <T: PrimInt> Add<Coords2D<T>> for &Coords2D<T> {
     }
 }
 
-impl <T: PrimInt> AddAssign<Coords2D<T>> for Coords2D<T> {
+impl <T: Num + Copy> AddAssign<Coords2D<T>> for Coords2D<T> {
     fn add_assign(&mut self, rhs: Coords2D<T>) {
         *self = *self + rhs;
     }
 }
 
-impl <T: PrimInt> Sub<Coords2D<T>> for Coords2D<T> {
+impl <T: Num> Sub<Coords2D<T>> for Coords2D<T> {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
@@ -109,13 +117,13 @@ impl <T: PrimInt> Sub<Coords2D<T>> for Coords2D<T> {
     }
 }
 
-impl <T: PrimInt> SubAssign<Coords2D<T>> for Coords2D<T> {
+impl <T: Num + Copy> SubAssign<Coords2D<T>> for Coords2D<T> {
     fn sub_assign(&mut self, rhs: Coords2D<T>) {
         *self = *self - rhs;
     }
 }
 
-impl <T: PrimInt> Add<&Coords2D<T>> for Coords2D<T> {
+impl <T: Num + Copy> Add<&Coords2D<T>> for Coords2D<T> {
     type Output = Self;
 
     fn add(self, rhs: &Self) -> Self::Output {
@@ -123,7 +131,7 @@ impl <T: PrimInt> Add<&Coords2D<T>> for Coords2D<T> {
     }
 }
 
-impl <T: PrimInt> Sub<&Coords2D<T>> for Coords2D<T> {
+impl <T: Num + Copy> Sub<&Coords2D<T>> for Coords2D<T> {
     type Output = Self;
 
     fn sub(self, rhs: &Self) -> Self::Output {
@@ -131,7 +139,7 @@ impl <T: PrimInt> Sub<&Coords2D<T>> for Coords2D<T> {
     }
 }
 
-impl <T: PrimInt> Mul<T> for Coords2D<T> {
+impl <T: Num + Copy> Mul<T> for Coords2D<T> {
     type Output = Self;
 
     fn mul(self, rhs: T) -> Self::Output {
@@ -139,7 +147,7 @@ impl <T: PrimInt> Mul<T> for Coords2D<T> {
     }
 }
 
-impl <T: PrimInt + Neg<Output = T>> Neg for Coords2D<T> {
+impl <T: Num + Neg<Output = T>> Neg for Coords2D<T> {
     type Output = Self;
 
     fn neg(self) -> Self::Output {
